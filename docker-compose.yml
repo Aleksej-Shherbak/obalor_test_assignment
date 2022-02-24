@@ -1,0 +1,11 @@
+version: '3.7'
+services:
+    db:
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        restart: always
+        environment:
+            POSTGRES_USER: "database"
+            POSTGRES_PASSWORD: "database"
+            POSTGRES_DB: "database"
