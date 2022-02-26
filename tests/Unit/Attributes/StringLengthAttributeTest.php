@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Attributes;
 
 use App\Infrastructure\Attributes\StringLength;
 use PHPUnit\Framework\TestCase;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Attributes;
 
 use App\Infrastructure\Attributes\NumberBetween;
 use PHPUnit\Framework\TestCase;

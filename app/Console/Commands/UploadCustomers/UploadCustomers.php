@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\UploadCustomers;
 
+use App\Infrastructure\Helpers\FilePathHelper;
 use Illuminate\Console\Command;
 
 class UploadCustomers extends Command
@@ -22,7 +23,7 @@ class UploadCustomers extends Command
 
     private const SUCCESS_RESULT_CODE = 0;
     private const ERROR_RESULT_CODE = 1;
-    private const ACCESSIBLE_FILE_EXT = 'csv';
+    private const ACCEPTABLE_FILE_EXT = 'csv';
 
     /**
      * Create a new command instance.
@@ -42,27 +43,11 @@ class UploadCustomers extends Command
     public function handle(): int
     {
         $pathToCsv = $this->option('path');
-        if (!$this->validatePath($pathToCsv)) {
+        if ($errorMessage = FilePathHelper::validatePath($pathToCsv, self::ACCEPTABLE_FILE_EXT)) {
+            $this->error($errorMessage);
             return self::ERROR_RESULT_CODE;
         }
 
         return self::SUCCESS_RESULT_CODE;
-    }
-
-    private function validatePath(string|null $path) : bool {
-        if (empty($path)) {
-            $this->error('--path argument is required.');
-            return false;
-        }
-        if (!file_exists($path)) {
-            $this->error('Invalid file path.');
-            return false;
-        }
-        if (pathinfo($path, PATHINFO_EXTENSION) !== self::ACCESSIBLE_FILE_EXT) {
-            $this->error("Only files with " . self::ACCESSIBLE_FILE_EXT . " extension are allowed.");
-            return false;
-        }
-
-        return true;
     }
 }
