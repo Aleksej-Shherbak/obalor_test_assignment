@@ -20,6 +20,8 @@ class CsvReader
 
         $fileHandle = fopen($filePath, 'r');
 
+        // Skip the header.
+        fgetcsv($fileHandle, separator: $delimiter);
         while (($row = fgetcsv($fileHandle, separator: $delimiter)) !== false) {
             yield $row;
         }

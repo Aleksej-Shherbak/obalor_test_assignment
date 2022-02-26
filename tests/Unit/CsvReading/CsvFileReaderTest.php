@@ -23,7 +23,7 @@ class CsvFileReaderTest extends TestCase
      */
     public function test_csv_line_reader_returns_correct_number_of_lines()
     {
-        $csvFileTotalNumberOfLines = 6;
+        $csvFileTotalNumberOfLines = 5;
         $pathToCsv = __DIR__ . '/random.csv';
 
         $totalNumberOfReceivedLines = count(iterator_to_array($this->csvReader->readCsvFile($pathToCsv)));
