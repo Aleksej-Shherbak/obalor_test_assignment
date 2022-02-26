@@ -5,6 +5,7 @@ namespace App\Console\Services;
 use App\Console\Dto\CsvLineParser\CsvCellDto;
 use App\Console\Dto\CsvLineParser\CsvLineDto;
 use App\Console\Dto\CsvLineParser\CsvLineParserResponse;
+use App\Infrastructure\Helpers\ReflectionHelper;
 
 class CsvLineParser
 {
@@ -37,4 +38,32 @@ class CsvLineParser
         return new CsvLineParserResponse(response: $csvLineDto, columnReasonOfFail: null, isFailed: false);
     }
 
+    /**
+     * @param array<string> $line
+     * @return array<CsvCellDto> $positionsMap
+     * @throws \Exception
+     */
+    public function buildPositionsMapFromCsvHeaderLine(array $line): array
+    {
+        $expectedValues = ReflectionHelper::getClassPublicPropertiesNamesList(CsvLineDto::class);
+
+        $givenValues = collect($line);
+
+        if ($expectedValues->count() !== $givenValues->count()) {
+            throw new \Exception('Wrong columns quantity.');
+        }
+
+        $positionsMap = [];
+
+        foreach ($expectedValues as $expectedValue) {
+            $key = $givenValues->search(function(string $x) use($expectedValue) { return $x === $expectedValue; });
+            if ($key === false) {
+                throw new \Exception("Column $expectedValue not found.");
+            }
+
+            $positionsMap[] = new CsvCellDto(position: $key, csvColumnName: $expectedValue);
+        }
+
+        return $positionsMap;
+    }
 }

@@ -18,14 +18,14 @@ class CsvLineParserTest extends TestCase
     }
 
     /**
-     * Check if @see CsvLineParser can pars array to appropriate Dto.
+     * Check @return void
+     * @see CsvLineParser can pars array to appropriate Dto.
      *
-     * @return void
      */
     public function test_csv_line_parser_parses_csv_line()
     {
         // arrange
-        $line = ['2', 'Karly Schroeder', 'ivoibscomcast.net',  20,  'Afghanistan'];
+        $line = ['2', 'Karly Schroeder', 'ivoibscomcast.net', 20, 'Afghanistan'];
 
         $positionMap = [
             new CsvCellDto(position: 0, csvColumnName: 'id'),
@@ -41,5 +41,38 @@ class CsvLineParserTest extends TestCase
         // assert
         $this->assertFalse($result->isFailed);
         $this->assertNull($result->columnReasonOfFail);
+    }
+
+
+    /**
+     * Check @return void
+     * @see CsvLineParser can build positions map.
+     *
+     */
+    public function test_csv_line_parser_can_build_positions_map()
+    {
+        // arrange
+        $line = ['id', 'name', 'email', 'age', 'location'];
+        $numberOfColumns = 5;
+
+        // act
+        $result = $this->csvLineParser->buildPositionsMapFromCsvHeaderLine($line);
+
+        // assert
+        $this->assertCount($numberOfColumns, $result);
+    }
+
+    /**
+     * Check @return void
+     * @see CsvLineParser can build positions map.
+     *
+     */
+    public function test_csv_line_parser_cant_build_positions_map_from_wrong_csv_header_line()
+    {
+        $this->expectException(\Exception::class);
+
+        $line = ['id', 'name', 'email'];
+
+        $this->csvLineParser->buildPositionsMapFromCsvHeaderLine($line);
     }
 }

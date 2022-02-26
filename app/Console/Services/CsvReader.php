@@ -12,25 +12,44 @@ class CsvReader
      *
      * @param string $filePath
      * @param string $delimiter
-     * @param bool $skipFirstLine
      * @return \Generator
      */
-    public function readCsvFile(string $filePath, string $delimiter = ',', bool $skipFirstLine = false): \Generator
+    public function readCsvFile(string $filePath, string $delimiter = ','): \Generator
     {
-        if ($validationPathErrorMessage = FilePathHelper::validatePath($filePath, 'csv')) {
-            throw new InvalidArgumentException($validationPathErrorMessage);
-        }
+        $this->validatePath($filePath);
 
         $fileHandle = fopen($filePath, 'r');
-
-        // If skip the first line, then read one line into emptiness.
-        if ($skipFirstLine) {
-            fgetcsv($fileHandle);
-        }
 
         while (($row = fgetcsv($fileHandle, separator: $delimiter)) !== false) {
             yield $row;
         }
         fclose($fileHandle);
+    }
+
+    /**
+     * Read header line in csv file by given path.
+     *
+     * @param string $filePath
+     * @param string $delimiter
+     * @return array<string>|null
+     */
+    public function readHeaderLine(string $filePath, string $delimiter = ','): ?array
+    {
+        $this->validatePath($filePath);
+
+        $fileHandle = fopen($filePath, 'r');
+        $res = fgetcsv($fileHandle, separator: $delimiter);
+        fclose($fileHandle);
+
+        if (is_array($res)) {
+            return $res;
+        }
+        return null;
+    }
+
+    private function validatePath(string $filePath) {
+        if ($validationPathErrorMessage = FilePathHelper::validatePath($filePath, 'csv')) {
+            throw new InvalidArgumentException($validationPathErrorMessage);
+        }
     }
 }

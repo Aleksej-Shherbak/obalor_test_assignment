@@ -31,20 +31,5 @@ class CsvFileReaderTest extends TestCase
         $this->assertEquals($csvFileTotalNumberOfLines, $totalNumberOfReceivedLines);
     }
 
-    /**
-     * Check does @see CsvReader return correct number of lines when skipLine parameter is set up to true.
-     *
-     * @return void
-     */
-    public function test_csv_line_reader_can_skip_header_line()
-    {
-        $csvFileTotalNumberOfLines = 5;
-        $pathToCsv = __DIR__ . '/random.csv';
-
-        $totalNumberOfReceivedLines = count(iterator_to_array($this->csvReader->readCsvFile($pathToCsv, skipFirstLine: true)));
-
-        $this->assertEquals($csvFileTotalNumberOfLines, $totalNumberOfReceivedLines);
-
-    }
 
 }
