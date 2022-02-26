@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\UploadCustomers\Dto;
+namespace App\Console\Dto\CsvLineParser;
 
 use App\Infrastructure\Attributes\EmailDnsRecord;
 use App\Infrastructure\Attributes\EmailFormat;
@@ -10,23 +10,19 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class CsvLineDto extends DataTransferObject
 {
-    #[StringLength(255)]
-    public string $name;
+    public int|null $id;
 
     #[StringLength(255)]
-    public string $surname;
+    public string|null $name;
 
     #[EmailDnsRecord]
     #[EmailFormat]
     #[StringLength(255)]
-    public string $email;
+    public string|null $email;
 
     #[NumberBetween(18, 99)]
-    public int $age;
+    public int|null $age;
 
     #[StringLength(255)]
-    public string $location;
-
-    #[StringLength(255)]
-    public string $countryCode;
+    public string|null $location;
 }

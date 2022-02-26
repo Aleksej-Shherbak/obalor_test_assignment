@@ -18,6 +18,11 @@ class EmailDnsRecord implements Validator
 {
     public function validate(mixed $value): ValidationResult
     {
+        // Don't react if null.
+        if ($value === null) {
+            return ValidationResult::valid();
+        }
+
         $validator = new EmailValidator();
         $isValidEmail = $validator->isValid($value, new DNSCheckValidation());
 

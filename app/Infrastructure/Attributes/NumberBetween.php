@@ -18,6 +18,11 @@ class NumberBetween implements Validator
 
     public function validate(mixed $value): ValidationResult
     {
+        // Don't react if null.
+        if ($value === null) {
+            return ValidationResult::valid();
+        }
+
         if ($value < $this->min) {
             return ValidationResult::invalid("Value should be greater than or equal to {$this->min}");
         }
