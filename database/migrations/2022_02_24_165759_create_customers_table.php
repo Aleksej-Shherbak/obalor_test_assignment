@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
-            $table->string('surname', 255);
-            $table->string('email', 255);
-            $table->smallInteger('age');
-            $table->string('location', 255);
-            $table->string('country_code', 3);
+            $table->string('name', 255)->nullable();
+            $table->string('surname', 255)->nullable();
+            $table->string('email', 255)->nullable();
+            $table->date('birth_year')->nullable();
+            $table->string('location', 255)->nullable();
+            $table->string('country_code', 3)->nullable();
         });
     }
 

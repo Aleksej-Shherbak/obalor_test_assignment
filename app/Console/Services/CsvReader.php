@@ -12,7 +12,7 @@ class CsvReader
      *
      * @param string $filePath
      * @param string $delimiter
-     * @return \Generator
+     * @return \Generator<array<string>>
      */
     public function readCsvFile(string $filePath, string $delimiter = ','): \Generator
     {

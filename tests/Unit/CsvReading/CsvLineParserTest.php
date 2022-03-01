@@ -3,7 +3,9 @@
 namespace Tests\Unit\CsvReading;
 
 use App\Console\Dto\CsvLineParser\CsvCellDto;
+use App\Console\Dto\CsvLineParser\CsvLineDto;
 use App\Console\Services\CsvLineParser;
+use App\Infrastructure\Helpers\ReflectionHelper;
 use PHPUnit\Framework\TestCase;
 
 class CsvLineParserTest extends TestCase
@@ -25,7 +27,13 @@ class CsvLineParserTest extends TestCase
     public function test_csv_line_parser_parses_csv_line()
     {
         // arrange
-        $line = ['2', 'Karly Schroeder', 'ivoibscomcast.net', 20, 'Afghanistan'];
+        $expectedEmail = 'ivoibscomcast.net';
+        $expectedAge = 20;
+        $expectedCountry = 'Afghanistan';
+        $expectedName = 'Karly Schroeder';
+        $expectedId = '2';
+
+        $line = [$expectedId, $expectedName, $expectedEmail, $expectedAge, $expectedCountry];
 
         $positionMap = [
             new CsvCellDto(position: 0, csvColumnName: 'id'),
@@ -41,6 +49,11 @@ class CsvLineParserTest extends TestCase
         // assert
         $this->assertFalse($result->isFailed);
         $this->assertNull($result->columnReasonOfFail);
+        $this->assertEquals($expectedEmail, $result->response->email);
+        $this->assertEquals($expectedAge, $result->response->age);
+        $this->assertEquals($expectedCountry, $result->response->location);
+        $this->assertEquals($expectedName, $result->response->name);
+        $this->assertEquals($expectedId, $result->response->id);
     }
 
 
@@ -53,13 +66,13 @@ class CsvLineParserTest extends TestCase
     {
         // arrange
         $line = ['id', 'name', 'email', 'age', 'location'];
-        $numberOfColumns = 5;
+        $expectedNumberOfColumns = ReflectionHelper::getClassPublicPropertiesNamesList(CsvLineDto::class)->count();
 
         // act
         $result = $this->csvLineParser->buildPositionsMapFromCsvHeaderLine($line);
 
         // assert
-        $this->assertCount($numberOfColumns, $result);
+        $this->assertCount($expectedNumberOfColumns, $result);
     }
 
     /**

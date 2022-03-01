@@ -10,8 +10,6 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class CsvLineDto extends DataTransferObject
 {
-    public int|null $id;
-
     #[StringLength(255)]
     public string|null $name;
 

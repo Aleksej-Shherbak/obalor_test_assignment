@@ -29,6 +29,8 @@ class CsvLineParser
                     continue;
                 }
 
+                $currentCellValue = $line[$positionsMapItem->position];
+
                 $csvLineDto->{$positionsMapItem->csvColumnName} = empty($currentCellValue) ? null : $currentCellValue;
             }
 
@@ -39,26 +41,22 @@ class CsvLineParser
     }
 
     /**
-     * @param array<string> $line
+     * @param array<string> $headerLine
      * @return array<CsvCellDto> $positionsMap
      * @throws \Exception
      */
-    public function buildPositionsMapFromCsvHeaderLine(array $line): array
+    public function buildPositionsMapFromCsvHeaderLine(array $headerLine): array
     {
         $expectedValues = ReflectionHelper::getClassPublicPropertiesNamesList(CsvLineDto::class);
 
-        $givenValues = collect($line);
-
-        if ($expectedValues->count() !== $givenValues->count()) {
-            throw new \Exception('Wrong columns quantity.');
-        }
+        $givenValues = collect($headerLine);
 
         $positionsMap = [];
 
         foreach ($expectedValues as $expectedValue) {
-            $key = $givenValues->search(function(string $x) use($expectedValue) { return $x === $expectedValue; });
+            $key = $givenValues->search(function(?string $x) use($expectedValue) { return $x === $expectedValue; });
             if ($key === false) {
-                throw new \Exception("Column $expectedValue not found.");
+                throw new \Exception("Column \"$expectedValue\" not found.");
             }
 
             $positionsMap[] = new CsvCellDto(position: $key, csvColumnName: $expectedValue);
