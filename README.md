@@ -10,7 +10,7 @@
 ◦ name – VARCHAR(255)
 ◦ surname – VARCHAR(255)
 ◦ email – VARCHAR(255)
-◦ age - DATE
+◦ birth_year - DATE
 ◦ location – VARCHAR(255)
 ◦ country_code – VARCHAR(3) формат https://www.iban.com/country-codes
 2. Перед записью в БД необходимо провести валидацию:
