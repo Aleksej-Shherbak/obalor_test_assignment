@@ -54,13 +54,13 @@ csv и выгружены в файл с именем `test-output.csv`. В те
 На скрине файла ошибок видно, что у первого же пользователя (с id 2) неверный email.
 Пробую его поправить вот так:
 
-![fixed_output_file_screen png](readme_images/fixed_output_file_screan.png.png)
+![fixed_output_file_screen png](readme_images/fixed_output_file_screen.png.png)
 
 Как видим, у пользователя `Karly Schroeder` теперь
 емейл `aleksej.shherbak@yandex.ru`. Запуская комманду на 
 выполнение. Результат:
 
-![tests result_from_error_file](readme_images/result_from_error_file.png.png)
+![tests result_from_error_file](readme_images/result_from_error_file.png)
 
 Как видим, команда сообщает, что одна строчка была добавлена. Остальные
 по-прежнему не верны.
