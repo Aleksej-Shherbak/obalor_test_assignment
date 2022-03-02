@@ -6,52 +6,63 @@ use App\Console\Dto\CsvLineParser\CsvCellDto;
 use App\Console\Dto\CsvLineParser\CsvLineDto;
 use App\Console\Dto\CsvLineParser\CsvLineParserResponse;
 use App\Infrastructure\Helpers\ReflectionHelper;
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\DNSCheckValidation;
+use Egulias\EmailValidator\Validation\MultipleValidationWithAnd;
+use Egulias\EmailValidator\Validation\RFCValidation;
+use Illuminate\Support\Collection;
 
 class CsvLineParser
 {
     /**
      * @param array<string> $line
-     * @param array<CsvCellDto> $positionsMap
+     * @param Collection<CsvCellDto> $positionsMap
      * @return CsvLineParserResponse
      */
-    public function parsLine(array $line, array $positionsMap): CsvLineParserResponse
+    public function parsLine(array $line, Collection $positionsMap): CsvLineParserResponse
     {
         $csvLineDto = new CsvLineDto();
         $currentCsvColumnName = '';
 
-        try {
-            foreach ($positionsMap as $positionsMapItem) {
-                $currentCsvColumnName = $positionsMapItem->csvColumnName;
+        foreach ($positionsMap as $positionsMapItem) {
+            $currentCsvColumnName = $positionsMapItem->csvColumnName;
 
-                // If the cell is empty we just pass it.
-                if (!array_key_exists($positionsMapItem->position, $line))
-                {
-                    continue;
-                }
-
-                $currentCellValue = $line[$positionsMapItem->position];
-
-                $csvLineDto->{$positionsMapItem->csvColumnName} = empty($currentCellValue) ? null : $currentCellValue;
+            // If the cell is empty we just pass it.
+            if (!array_key_exists($positionsMapItem->position, $line))
+            {
+                continue;
             }
 
-        } catch (\Exception | \Error $e) {
-            return new CsvLineParserResponse(response: null, columnReasonOfFail: $currentCsvColumnName, isFailed: true);
+            $currentCellValue = empty($line[$positionsMapItem->position]) ? null : $line[$positionsMapItem->position];
+
+            if ($currentCellValue !== null && !$this->isValid($currentCellValue, $positionsMapItem->csvColumnName)) {
+                return new CsvLineParserResponse(
+                    response: null,
+                    columnReasonOfFail: $positionsMapItem->csvColumnName,
+                    isFailed: true);
+            }
+
+            $csvLineDto->{$positionsMapItem->csvColumnName} = $currentCellValue;
         }
-        return new CsvLineParserResponse(response: $csvLineDto, columnReasonOfFail: null, isFailed: false);
+
+        return new CsvLineParserResponse(
+            response: $csvLineDto,
+            columnReasonOfFail: null,
+            isFailed: false);
     }
 
     /**
      * @param array<string> $headerLine
-     * @return array<CsvCellDto> $positionsMap
+     * @return Collection<CsvCellDto> $positionsMap
      * @throws \Exception
      */
-    public function buildPositionsMapFromCsvHeaderLine(array $headerLine): array
+    public function buildPositionsMapFromCsvHeaderLine(array $headerLine): Collection
     {
         $expectedValues = ReflectionHelper::getClassPublicPropertiesNamesList(CsvLineDto::class);
 
         $givenValues = collect($headerLine);
 
-        $positionsMap = [];
+        $positionsMap = collect([]);
 
         foreach ($expectedValues as $expectedValue) {
             $key = $givenValues->search(function(?string $x) use($expectedValue) { return $x === $expectedValue; });
@@ -59,9 +70,35 @@ class CsvLineParser
                 throw new \Exception("Column \"$expectedValue\" not found.");
             }
 
-            $positionsMap[] = new CsvCellDto(position: $key, csvColumnName: $expectedValue);
+            $positionsMap->add(new CsvCellDto(position: $key, csvColumnName: $expectedValue));
         }
 
         return $positionsMap;
+    }
+
+    private function isValid(mixed $item, string $columnName): bool {
+        if ($columnName === 'name' ) {
+            return mb_strlen($item) <= 255;
+        }
+
+        if ($columnName === 'location' ) {
+            return mb_strlen($item) <= 255;
+        }
+
+        if ($columnName === 'email') {
+            $validator = new EmailValidator();
+            $multipleValidations = new MultipleValidationWithAnd([
+                new RFCValidation(),
+                new DNSCheckValidation()
+            ]);
+            $isValidEmail = $validator->isValid($item, $multipleValidations);
+            return mb_strlen($item) <= 255 && $isValidEmail;
+        }
+
+        if ($columnName === 'age') {
+            return $item > 18 && $item < 99;
+        }
+
+        return false;
     }
 }

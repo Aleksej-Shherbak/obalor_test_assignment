@@ -27,25 +27,22 @@ class CsvLineParserTest extends TestCase
     public function test_csv_line_parser_parses_csv_line()
     {
         // arrange
-        $expectedEmail = 'ivoibscomcast.net';
+        $expectedEmail = 'aleksej.shherbak@yandex.ru';
         $expectedAge = 20;
         $expectedCountry = 'Afghanistan';
         $expectedName = 'Karly Schroeder';
-        $expectedId = '2';
 
-        $line = [$expectedId, $expectedName, $expectedEmail, $expectedAge, $expectedCountry];
+        $line = [$expectedName, $expectedEmail, $expectedAge, $expectedCountry];
 
-        $positionMap = [
-            new CsvCellDto(position: 0, csvColumnName: 'id'),
-            new CsvCellDto(position: 1, csvColumnName: 'name'),
-            new CsvCellDto(position: 2, csvColumnName: 'email'),
-            new CsvCellDto(position: 3, csvColumnName: 'age'),
-            new CsvCellDto(position: 4, csvColumnName: 'location'),
-        ];
+        $positionMap = collect([
+            new CsvCellDto(position: 0, csvColumnName: 'name'),
+            new CsvCellDto(position: 1, csvColumnName: 'email'),
+            new CsvCellDto(position: 2, csvColumnName: 'age'),
+            new CsvCellDto(position: 3, csvColumnName: 'location'),
+        ]);
 
         // act
         $result = $this->csvLineParser->parsLine(line: $line, positionsMap: $positionMap);
-
         // assert
         $this->assertFalse($result->isFailed);
         $this->assertNull($result->columnReasonOfFail);
@@ -53,7 +50,6 @@ class CsvLineParserTest extends TestCase
         $this->assertEquals($expectedAge, $result->response->age);
         $this->assertEquals($expectedCountry, $result->response->location);
         $this->assertEquals($expectedName, $result->response->name);
-        $this->assertEquals($expectedId, $result->response->id);
     }
 
 

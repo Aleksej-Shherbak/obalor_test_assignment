@@ -1,5 +1,13 @@
 version: '3.7'
 services:
+    php-fpm:
+        build:
+            args:
+                user: developer
+                uid: 1000
+            context: docker/php-fpm
+        volumes:
+            - "./:/var/www"
     db:
         image: postgres:latest
         ports:

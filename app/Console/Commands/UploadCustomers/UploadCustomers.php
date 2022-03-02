@@ -11,6 +11,8 @@ use App\Infrastructure\Helpers\ReflectionHelper;
 use App\Models\CountryCode;
 use App\Models\Customer;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use Keboola\Csv\CsvWriter;
 use Mavinoo\Batch\Batch;
 
 class UploadCustomers extends Command
@@ -33,7 +35,12 @@ class UploadCustomers extends Command
     private CsvReader $csvReader;
     private CsvLineParser $csvLineParser;
     private CsvLineProcessor $csvLineProcessor;
-    private string $path;
+
+    /**
+     * @var resource
+     */
+    private $errorFile;
+    private CsvWriter $csvWriter;
 
     private const SUCCESS_RESULT_CODE = 0;
     private const ERROR_RESULT_CODE = 1;
@@ -65,12 +72,10 @@ class UploadCustomers extends Command
         if (!$this->isValidPath($path)) {
             return self::ERROR_RESULT_CODE;
         }
-        $this->path = $path;
 
-        // I just can't break the habit when variables have block scope of visibility (not functional scope). I know that it's not gonna work in PHP, but ...
         $positionMap = null;
         try {
-            $headerLineRowArray = $this->csvReader->readHeaderLine($this->path);
+            $headerLineRowArray = $this->csvReader->readHeaderLine($path);
             $positionMap = $this->csvLineParser->buildPositionsMapFromCsvHeaderLine($headerLineRowArray);
         } catch (\Exception $exception) {
             $this->error($exception->getMessage());
@@ -80,10 +85,10 @@ class UploadCustomers extends Command
         $countryCodes = CountryCode::all();
 
         $customersArraysToBulkInsert = [];
-        foreach ($this->csvReader->readCsvFile($this->path) as $rowCsvLine) {
+        foreach ($this->csvReader->readCsvFile($path) as $rowCsvLine) {
             $serviceResponse = $this->csvLineParser->parsLine($rowCsvLine, $positionMap);
             if ($serviceResponse->isFailed) {
-                // todo write to excel why
+                $this->writeErrorLineToCsv($serviceResponse->columnReasonOfFail, $positionMap, $rowCsvLine);
                 continue;
             }
             if ($customerArray = $this->csvLineProcessor->processLine($serviceResponse->response, $countryCodes)) {
@@ -94,6 +99,10 @@ class UploadCustomers extends Command
         $customerInstance = new Customer();
         $columns = ['email', 'birth_year', 'name', 'surname', 'location', 'country_code'];
         $result = $this->batch->insert($customerInstance, $columns, $customersArraysToBulkInsert);
+
+        if ($this->errorFile !== null) {
+            fclose($this->errorFile);
+        }
 
         if ($result !== false) {
             $this->info('Done! Insertion information: ' . print_r($result, true));
@@ -117,6 +126,24 @@ class UploadCustomers extends Command
             return false;
         }
         return true;
+    }
+
+
+    private function writeErrorLineToCsv(string $columTheReasonOfFail, Collection $arrayPositionMap, $row): void {
+
+        if ($this->errorFile === null) {
+            $this->errorFile = fopen( './test-output.csv', 'w+');
+
+            $this->csvWriter = new CsvWriter($this->errorFile);
+            $this->csvWriter->writeRow([
+                'error', 'id', ...$arrayPositionMap->map(function($x) {return $x->csvColumnName; })->toArray()
+            ]);
+        }
+
+        $this->csvWriter->writeRow([
+            $columTheReasonOfFail, ...$row
+        ]);
+
     }
 
 }
