@@ -2,7 +2,9 @@
 
 namespace App\Console\Dto\CsvLineParser;
 
-class CsvLineDto
+use Spatie\DataTransferObject\DataTransferObject;
+
+class CsvLineDto extends DataTransferObject
 {
     public ?string $name;
     public ?string $email;
