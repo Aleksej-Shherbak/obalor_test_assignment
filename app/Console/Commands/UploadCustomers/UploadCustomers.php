@@ -105,7 +105,7 @@ class UploadCustomers extends Command
         }
 
         if ($result !== false) {
-            $this->info('Done! Insertion information: ' . print_r($result, true));
+            $this->info('Done! Insertion information: ' . json_encode($result, JSON_PRETTY_PRINT));
             return self::SUCCESS_RESULT_CODE;
 
         } else {
