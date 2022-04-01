@@ -42,7 +42,7 @@ class CsvLineParserTest extends TestCase
         ]);
 
         // act
-        $result = $this->csvLineParser->parsLine(line: $line, positionsMap: $positionMap);
+        $result = $this->csvLineParser->parsLine(rowLine: $line, positionsMap: $positionMap);
         // assert
         $this->assertFalse($result->isFailed);
         $this->assertNull($result->columnReasonOfFail);

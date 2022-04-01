@@ -2,72 +2,65 @@
 
 ## Obalor test assignment (using laravel)
 
-## Задача:
-Используя Laravel/Lumen фреймворк, написать консольную команду которая перенесет данные из файла random.csv в базу данных в таблицу customers
+## Issue:
+Using Laravel/Lumen framework, write a console program that will transfer data from the `random.csv` file into a database `customers` table. 
 
-## Условия:
-1. Данные должны быть нормализованы и приведены к следующим типам и из них должны быть извлечены соответствующие данные:
+## Conditions:
+1. You have allowed to use the following types in the `customers` table:
 ◦ name – VARCHAR(255)
 ◦ surname – VARCHAR(255)
 ◦ email – VARCHAR(255)
 ◦ birth_year - DATE
 ◦ location – VARCHAR(255)
-◦ country_code – VARCHAR(3) формат https://www.iban.com/country-codes
-2. Перед записью в БД необходимо провести валидацию:
-◦ Записи с невалидным email не должны быть созданы (проверки по RFC, DNS)
-◦ Записи с невалидным age не должны быть созданы (допустимые значения 18 - 99)
-◦ Записи с невалидным location должны быть созданы, однако невалидные значения должны быть заменены на Unknown
-3. Консольная команда должна после исполнения должна выводить отчет в Excel, содержащий в себе все не созданные записи и причину их невалидности. Например, если email был не валиден, необходимо вывести исходную строку из файла полностью и добавить в поле error название (не значение) невалидной колонки (email)
-4. Перед каждым запуском консольная команда не должна очищать таблицу customers и должна добавлять только новых клиентов, не затирая данные по старым
+◦ country_code – VARCHAR(3) format https://www.iban.com/country-codes
+2. Before the inserting to the database you have to validate the following rules:
+◦ Rows with invalid email shouldn't be recorded (check RFC and DNS)
+◦ Rows with invalid age shouldn't be recorded  (allowed range is 18 - 99)
+◦ Invalid location should be recorded as `Unknown` string
+3. After running the command supposed to print a csv report that will contain failed rows and the reason of the fail. For example if email is invalid the command will print in the report the whole row and in the additional errors' column it will print the reason of the fail (string `email`) 
+4. The command do not clear the `customers` table. It only adds new data. 
 
-## Результат:
-Ссылка на гит репозиторий, содержащий в себе Readme файл с описанием шагов для выполнения задачи.
+## Details
 
-## Пояснение
+random.csv is committed in the repo already for simplicity. The application is dockerized and
+could be started in the following way:
 
-random.csv файл уже в репозитории для упрощения. Приложение
-докерезировано запуск может быть осуществлен следующим образом.
-
-1) Убедитесь что у вас установлен docker и docker-compose.
-2) Склонируйте репозиорий `git clone https://github.com/Aleksej-Shherbak/obalor_test_assignment.git`
-3) Перейдите в папку проекта `cd obalor_test_assignment` 
-4) Запустите `docker-compose up -d`
-5) Далее обеспечим управление контейнером при помощи bash. В консоли вводим `docker-compose exec php-fpm bash`
-6) Уже находясь "в контейнере" запускаем установку пакетов и миграцию и сидинг базы `composer update && php artisan migrate && php artisan db:seed`
-7) Запускаем саму команду, ради которой все и затевалось `php artisan customers-uploder:upload`
-8) Команда предложет ввести путь к файлу. Вводим `random.csv`. Он в корне проека.
-9) Команде потребуется некоторое время чтобы выполнить проверки (включая проверки DNS записи для емейлов). Список ошибочных строк можно получить так `cat test-output.csv`.
+1) Make sure you have docker and docker-compose.
+2) Clone the repo `git clone https://github.com/Aleksej-Shherbak/obalor_test_assignment.git`
+3) Navigate to the project folder  `cd obalor_test_assignment` 
+4) Run `docker-compose up -d`
+5) Prepare to go inside the container using bash. Run in your terminal `docker-compose exec php-fpm bash`
+6) Being in the container run packages installation and database migration `composer update && php artisan migrate && php artisan db:seed`
+7) Run the command (the main subject of that assignment) `php artisan customers-uploder:upload`
+8) It will suggest you to show the path to the `random.csv` file. Ender `/.random.csv`. It's in the root of the project.
+9) The command will require some time to check all validation rules (including DNS records for emails). Check what errors do we have we can with the help of the following command `cat test-output.csv`.
 
 ![example png](readme_images/readme.png)
 
-Все. Произойдет импорт данных и валидация. невалидные данные будут записаны в 
-csv и выгружены в файл с именем `test-output.csv`. В текущей реализации я не 
-предусматривал возможности задать путь для файла с ошибками. Однако такую 
-возможность можно рассмотреть в рамках дальнейших доработок. 
+That's it. There will be data validation and import to the database. Invalid data will be recorded in  
+csv with `test-output.csv` name. In this implementation I did not make an ability to specify the error file 
+output path. But this might be implemented in the next version.  
 
-Положение колонок в файле не важно. Главное чтоб были те колонки, которые запрашивает
-команда в самом начале использования. Механизм построит карту позиций и выполнит парсинг
-Это удобное если в файле есть лишние колонки, на которые мы не хотим обращать внмание. Выходной
-файл с ошибками как раз является примером такого файла. Получив его, можно поправить то, на что 
-жаловалась команда (поле error) и выполнить повторную загрузку.
+Columns position in the input file does not matter. The program will calculate the position and create a
+Position map object.
+This is convenient if there are redundant columns in the file and we would like to ignore them. Output error file 
+is a bright example of that file ("error" column is redundant and should be skipped). Once we have the error output file,
+we can check what was the problem for each column fix them and use the file like import file.
 
-На скрине файла ошибок видно, что у первого же пользователя (с id 2) неверный email.
-Пробую его поправить вот так:
+On the following screenshot we can see that the user with id 2 has invalid email.
+We can fix it:
 
 ![fixed_output_file_screen png](readme_images/fixed_output_file_screen.png)
 
-Как видим, у пользователя `Karly Schroeder` теперь
-емейл `aleksej.shherbak@yandex.ru`. Запуская комманду на 
-выполнение. Результат:
+Now, as we can see, user `Karly Schroeder` has `aleksej.shherbak@yandex.ru` email. Run the command again:
 
 ![tests result_from_error_file](readme_images/result_from_error_file.png)
 
-Как видим, команда сообщает, что одна строчка была добавлена. Остальные
-по-прежнему не верны.
+Command reports that one line was imported. The rest is still invalid.
 
-### Тесты
+### Tests
 
-Проект частично покрыт тестами. Для запуска:
+The project is partially covered with tests. To run the:
 
 ```bash
 php artisan test 
@@ -75,12 +68,4 @@ php artisan test
 
 ![tests png](readme_images/tests.png)
 
-P.S. `.env` фай коммитнут только в рамках демонстрационной задачи. Не делайте так никогда!
-
-### Update 
-
-Я решил сделать финальный вывод вот в таком виде:
-
-![tests png](readme_images/output_fixes.png)
-
-Выглядит более дружелюбно для пользователя, чем дамп массива.
+P.S. `.env` is in the repo for demonstration purposes only. Do not do it in production!

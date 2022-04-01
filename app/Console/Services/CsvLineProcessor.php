@@ -14,7 +14,7 @@ class CsvLineProcessor
 
 
     /**
-     * Method processes a given line and put it into DB.
+     * Method prepares an array from a csv line that is ready to be used in the bulk insert.
      *
      * @param CsvLineDto $csvLineDto
      * @param Collection<CountryCode> $countryCodes
@@ -43,7 +43,7 @@ class CsvLineProcessor
         if ($csvLineDto->location !== null) {
             $customerArray['country_code'] = $this->getCustomerCountryCode($csvLineDto->location, $countryCodes);
         } else {
-            $customerArray['country_code'] = null;
+            $customerArray['country_code'] = env('UNKNOWN_LOCATION_PLACEHOLDER');
         }
 
         return $customerArray;

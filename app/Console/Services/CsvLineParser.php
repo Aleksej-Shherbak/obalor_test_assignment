@@ -15,11 +15,13 @@ use Illuminate\Support\Collection;
 class CsvLineParser
 {
     /**
-     * @param array<string> $line
+     * Pars line from csv file with a customer's data to DTO.
+     *
+     * @param array<string> $rowLine
      * @param Collection<CsvCellDto> $positionsMap
      * @return CsvLineParserResponse
      */
-    public function parsLine(array $line, Collection $positionsMap): CsvLineParserResponse
+    public function parsLine(array $rowLine, Collection $positionsMap): CsvLineParserResponse
     {
         $csvLineDto = new CsvLineDto();
         $currentCsvColumnName = '';
@@ -28,12 +30,12 @@ class CsvLineParser
             $currentCsvColumnName = $positionsMapItem->csvColumnName;
 
             // If the cell is empty we just pass it.
-            if (!array_key_exists($positionsMapItem->position, $line))
+            if (!array_key_exists($positionsMapItem->position, $rowLine))
             {
                 continue;
             }
 
-            $currentCellValue = empty($line[$positionsMapItem->position]) ? null : $line[$positionsMapItem->position];
+            $currentCellValue = empty($rowLine[$positionsMapItem->position]) ? null : $rowLine[$positionsMapItem->position];
 
             if ($currentCellValue !== null && !$this->isValid($currentCellValue, $positionsMapItem->csvColumnName)) {
                 return new CsvLineParserResponse(
@@ -52,6 +54,8 @@ class CsvLineParser
     }
 
     /**
+     * Build csv columns position map according to given header csv line.
+     *
      * @param array<string> $headerLine
      * @return Collection<CsvCellDto> $positionsMap
      * @throws \Exception
