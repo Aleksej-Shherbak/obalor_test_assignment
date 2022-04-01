@@ -31,7 +31,7 @@ could be started in the following way:
 4) Run `docker-compose up -d`
 5) Prepare to go inside the container using bash. Run in your terminal `docker-compose exec php-fpm bash`
 6) Being in the container run packages installation and database migration `composer update && php artisan migrate && php artisan db:seed`
-7) Run the command (the main subject of that assignment) `php artisan customers-uploder:upload`
+7) Run the command (the main subject of that assignment) `php artisan customers-uploader:upload`
 8) It will suggest you to show the path to the `random.csv` file. Ender `./random.csv`. It's in the root of the project.
 9) The command will require some time to check all validation rules (including DNS records for emails). Check what errors do we have we can with the help of the following command `cat test-output.csv`.
 
