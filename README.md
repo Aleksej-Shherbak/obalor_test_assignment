@@ -7,16 +7,16 @@ Using Laravel/Lumen framework, write a console program that will transfer data f
 
 ## Conditions:
 1. You have allowed to use the following types in the `customers` table:
-◦ name – VARCHAR(255)
-◦ surname – VARCHAR(255)
-◦ email – VARCHAR(255)
-◦ birth_year - DATE
-◦ location – VARCHAR(255)
-◦ country_code – VARCHAR(3) format https://www.iban.com/country-codes
+* name – VARCHAR(255)
+* surname – VARCHAR(255)
+* email – VARCHAR(255)
+* birth_year - DATE
+* location – VARCHAR(255)
+* country_code – VARCHAR(3) format https://www.iban.com/country-codes
 2. Before the inserting to the database you have to validate the following rules:
-◦ Rows with invalid email shouldn't be recorded (check RFC and DNS)
-◦ Rows with invalid age shouldn't be recorded  (allowed range is 18 - 99)
-◦ Invalid location should be recorded as `Unknown` string
+* Rows with invalid email shouldn't be recorded (check RFC and DNS)
+* Rows with invalid age shouldn't be recorded  (allowed range is 18 - 99)
+* Invalid location should be recorded as `Unknown` string
 3. After running the command supposed to print a csv report that will contain failed rows and the reason of the fail. For example if email is invalid the command will print in the report the whole row and in the additional errors' column it will print the reason of the fail (string `email`) 
 4. The command do not clear the `customers` table. It only adds new data. 
 
