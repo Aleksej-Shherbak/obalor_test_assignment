@@ -98,7 +98,11 @@ class UploadCustomers extends Command
         }
         $customerInstance = new Customer();
         $columns = ['email', 'birth_year', 'name', 'surname', 'location', 'country_code'];
-        $result = $this->batch->insert($customerInstance, $columns, $customersArraysToBulkInsert);
+
+        $result = true;
+        if (!empty($customersArraysToBulkInsert)) {
+            $result = $this->batch->insert($customerInstance, $columns, $customersArraysToBulkInsert);
+        }
 
         if ($this->errorFile !== null) {
             fclose($this->errorFile);
@@ -111,6 +115,7 @@ class UploadCustomers extends Command
         } else {
             $this->error('Insertion error.');
         }
+        return self::SUCCESS_RESULT_CODE;
     }
 
     private function askForFilePath(): string

@@ -43,7 +43,8 @@ class CsvLineProcessor
         if ($csvLineDto->location !== null) {
             $customerArray['country_code'] = $this->getCustomerCountryCode($csvLineDto->location, $countryCodes);
         } else {
-            $customerArray['country_code'] = env('UNKNOWN_LOCATION_PLACEHOLDER');
+            $customerArray['country_code'] = null;
+            $customerArray['location'] = env('UNKNOWN_LOCATION_PLACEHOLDER');
         }
 
         return $customerArray;
